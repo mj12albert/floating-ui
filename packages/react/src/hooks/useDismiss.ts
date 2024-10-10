@@ -162,6 +162,8 @@ export function useDismiss(
         return;
       }
 
+      console.log('isComposingRef', isComposingRef.current);
+
       // Wait until IME is settled. Pressing `Escape` while composing should
       // close the compose menu, but not the floating element.
       if (isComposingRef.current) {
@@ -343,6 +345,8 @@ export function useDismiss(
   });
 
   React.useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
     if (!open || !enabled) {
       return;
     }
@@ -355,11 +359,15 @@ export function useDismiss(
     }
 
     function handleCompositionStart() {
+      console.log('handleCompositionStart');
       isComposingRef.current = true;
     }
 
     function handleCompositionEnd() {
-      isComposingRef.current = false;
+      timeoutId = setTimeout(() => {
+        console.log('handleCompositionEnd');
+        isComposingRef.current = false;
+      }, 0);
     }
 
     const doc = getDocument(elements.floating);
@@ -438,6 +446,7 @@ export function useDismiss(
       ancestors.forEach((ancestor) => {
         ancestor.removeEventListener('scroll', onScroll);
       });
+      clearTimeout(timeoutId);
     };
   }, [
     dataRef,
